@@ -4,7 +4,7 @@
 #SBATCH -t 4-0:0:0
 #SBATCH --account=def-vlf
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=11ckb5@queensu.ca
+#SBATCH --mail-user=your_email@queensu.ca
 #SBATCH --job-name=ParseFastQ_DBR01_batch2array
 #SBATCH --array=10-17
 #SBATCH -o %x-%j.o
@@ -12,7 +12,7 @@
 
 module load StdEnv/2020 python/2.7.18
 
-python ./ParseDBR_ddRAD/ParseFastQ.py -r x${SLURM_ARRAY_TASK_ID}_R1.fastq  \
+python ~/ParseDBR_ddRAD/ParseFastQ.py -r x${SLURM_ARRAY_TASK_ID}_R1.fastq  \
          -R x${SLURM_ARRAY_TASK_ID}_R2.fastq \
          -i ATCACG -e AATT -n ./batch2/batch2_DBR01_x${SLURM_ARRAY_TASK_ID}_R1_output.fastq \
          -N ./batch2/batch2_DBR01_x${SLURM_ARRAY_TASK_ID}_R2_output.fastq \

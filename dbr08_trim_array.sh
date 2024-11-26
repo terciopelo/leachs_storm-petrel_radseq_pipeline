@@ -4,7 +4,7 @@
 #SBATCH -t 4-0:0:0
 #SBATCH --account=def-vlf
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=11ckb5@queensu.ca
+#SBATCH --mail-user=your_email@queensu.ca
 #SBATCH --job-name=ParseFastQ_DBR08_batch2array
 #SBATCH --array=10-17
 #SBATCH -o %x-%j.o
