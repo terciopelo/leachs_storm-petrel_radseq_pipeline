@@ -92,7 +92,7 @@ scp Heather_s_Final_Library_2_S1_L003_R2_001.fastq.gz <your_username>@beluga.com
 
 * Use custom Python code developed by Evelyn Jensen
   * https://github.com/Eljensen/ParseDBR_ddRAD
-  * For more information, see
+  * For more information, see the files in the primer_info folder within this repo
 
 * On Digital Alliance of Canada cluster (or similar)...
 
