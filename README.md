@@ -666,7 +666,7 @@ gstacks -I ./bams_both_batches -O ./stacks_both --min-mapq 20 -M popmap_w_batche
 
 ### Step 7: Run populations to filter your data
 
-Filtering RadSeq data can be tricky. The parameters I use below are preliminary for this data set. For a more extensive treatment of the topic see this Speciation Genomics walkthrough that provides code for assessing summary stats and filtering accordingly.
+Filtering RadSeq data can be tricky. The parameters I use below are preliminary for this data set. For a more extensive treatment of the topic see this Speciation Genomics walkthrough (https://speciationgenomics.github.io/filtering_vcfs/) that provides code for assessing summary stats and filtering accordingly.
 
 First, make an output directory
 
