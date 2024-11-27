@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=def-vlf
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=11ckb5@queensu.ca
+#SBATCH --mail-user=your_email@queensu.ca
 #SBATCH --job-name=demultiplex_radtag_batch2
 #SBATCH --nodes=1
 #SBATCH -c 1

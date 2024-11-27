@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --account=def-vlf
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=11ckb5@queensu.ca
-#SBATCH --job-name=demultiplex_radtags
+#SBATCH --mail-user=your_email@queensu.ca
+#SBATCH --job-name=demultiplex_radtags_batch1
 #SBATCH --nodes=1
 #SBATCH -c 1
 #SBATCH --mem=100G 
