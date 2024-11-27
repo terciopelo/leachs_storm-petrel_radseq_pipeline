@@ -534,6 +534,11 @@ done
 # -f 8 = cut first 8 bases
 # -F 4 = cut trailing 4 bases
 ```
+
+```
+sbatch fastp_trim.sh
+```
+
 Notes:
 * Some of these filters/cleaning flags are likely not necessary if you're running a different data set through this pipeline.
 * I would personally try running this without the two -f and -F filters first. Have a look at the resulting html sequence quality reports, and then see if any additional trimming parameters are needed; then re-run the script if necessary
