@@ -32,6 +32,8 @@ General notes:
 * 328 sequences from 308 individuals
   * Samples were sequenced in two batches
   * 20 individuals overlap between batches 1 and 2:
+
+
 | Sample | Colony
 | ---- | ----|
 | 1401-47754 | Country |
