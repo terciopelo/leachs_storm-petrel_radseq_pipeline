@@ -179,7 +179,7 @@ python ~/ParseDBR_ddRAD/ParseFastQ.py -r Heather_s_Final_Library_S1_L001_R1_001.
 ```
 #### Notes on above file
 
-* If using on a different dataset, you need to sub in your fastq file names (R1 and R2) into each unparallelized DBR scrip (dbr01_trim.sh, dbr08_trim.sh, dbr10_trim.sh, drb11_trim.sh)
+* If using on a different dataset, you need to sub in your fastq file names (R1 and R2) into each unparallelized DBR script (dbr01_trim.sh, dbr08_trim.sh, dbr10_trim.sh, drb11_trim.sh)
 
 * The Jensen ParseFastQ.py script requires an older version of python (and also an older version of the standard cluster environment--see the module load statement in the script)
 
