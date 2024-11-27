@@ -32,26 +32,28 @@ General notes:
 * 328 sequences from 308 individuals
   * Samples were sequenced in two batches
   * 20 individuals overlap between batches 1 and 2:
-  * | 1401-47754 | Country |
-    | 1401-81363 | Kent |
-    | 1701-14998 | Bon Portage |
-    | 1701-15029 | Bon Portage |
-    | 1701-19735 | Country |
-    | 2461-02977 | Gull |
-    | 2461-02981 | Gull |
-    | 2461-07335 | Baccalieu |
-    | 2461-07387 | Baccalieu |
-    | 2461-12635 | Baccalieu |
-    | 2461-12636 | Baccalieu |
-    | 2461-12657 | Middle Lawn |
-    | 2461-12669 | Middle Lawn |
-    | 39334 | Corossol |
-    | 39338 | Corossol |
-    | 7901-11063 | Kent|
-    | 7901-12044 | Gull |
-    | 8517724 | Hernyken |
-    | P27 | Green |
-    | P30 | Green |
+| Sample | Colony
+| ---- | ----|
+| 1401-47754 | Country |
+| 1401-81363 | Kent |
+| 1701-14998 | Bon Portage |
+| 1701-15029 | Bon Portage |
+| 1701-19735 | Country |
+| 2461-02977 | Gull |
+| 2461-02981 | Gull |
+| 2461-07335 | Baccalieu |
+| 2461-07387 | Baccalieu |
+| 2461-12635 | Baccalieu |
+| 2461-12636 | Baccalieu |
+| 2461-12657 | Middle Lawn |
+| 2461-12669 | Middle Lawn |
+| 39334 | Corossol |
+| 39338 | Corossol |
+| 7901-11063 | Kent|
+| 7901-12044 | Gull |
+| 8517724 | Hernyken |
+| P27 | Green |
+| P30 | Green |
 
 Colony breakdown
 
