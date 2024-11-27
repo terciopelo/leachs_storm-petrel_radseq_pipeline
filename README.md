@@ -466,6 +466,7 @@ First, we need to generate some files listing all of our samples and their paths
 
 Get sample list for batch 1
 ```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
 ls -1 batch1/batch1_demultiplexed/*1.fq.gz | sed 's/........$//' > all_batch1_demultiplexed.txt
 ```
 Note: sed removes the last 8 characters, so we get just the sample name, not the file ending, which is helpful.
@@ -621,10 +622,10 @@ echo $SAMPLELIST
 for SAMPLE in `cat $SAMPLELIST`; do
         bwa mem -t 4 refgenome/ref_genome.fa ${SAMPLE}_trimmed.1.fq.gz ${SAMPLE}_trimmed.2.fq.gz | samtools view -b | samtools sort --threads 4 > ${SAMPLE}.bam
 done
-
 ```
 
 ```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
 sbatch align_bwa.sh
 ```
 
@@ -637,6 +638,7 @@ First, since some samples overlap between batches, we need to add a prefix to ea
 
 Batch 1
 ```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
 cd batch1/batch1_demultiplexed
 
 # for each bam file, add b1_ to the start of the file name
@@ -647,6 +649,7 @@ done
 
 Batch 2
 ```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
 cd batch2/batch2_demultiplexed
 
 # for each bam file, add b1_ to the start of the file name
