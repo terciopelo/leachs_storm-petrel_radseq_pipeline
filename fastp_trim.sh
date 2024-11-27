@@ -2,7 +2,7 @@
 #SBATCH --job-name=fastp_lesp_all
 #SBATCH --account=def-vlf
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=11ckb5@queensu.ca
+#SBATCH --mail-user=your_email@queensu.ca
 #SBATCH --array=10-17
 #SBATCH --mem 20G
 #SBATCH -c 4
@@ -29,14 +29,5 @@ done
 # filters/analyses done...
 # --detect_adapter_for_pe = automatically try to detect adapters in addition to overlap analysis
 # --dedup = deduplicate sequences
-# --adapter_sequence (and adapter_sequence_r2) = check for sequences specified by Genome Quebec
-# --cut_tail = run sliding window trimming from tail of sequence to head to remove low quality area
-# -y = low complexity filter (default = 30%)
-# -p  = over-representation analysis
-# -g = remove polyG tails
-# -w = threads 
-# -i = input r1
-# -I = input r2
-# -o = output r1
-# -O = output r2
-# -h = path for html report
+# -f 8 = cut first 8 bases
+# -F 4 = cut trailing 4 bases
