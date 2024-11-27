@@ -269,8 +269,8 @@ python ~/ParseDBR_ddRAD/ParseFastQ.py -r x${SLURM_ARRAY_TASK_ID}_R1.fastq  \
 
 ```
 Notes
-* This script will launch a separate job for each of the 8 different paired chunks of the batch 2 fastq file (i.e., x##_R1.fastq and X##_R2.fastq)
-* The --array-10-17 slurm flag causes the SLURM_ARRAY_TASK_ID variable to take on the numbers between 10 and 17, which match our split files (x10-17)
+* This script will launch a separate job for each of the 8 different paired chunks of the batch 2 fastq file (i.e., x##_R1.fastq and x##_R2.fastq)
+* The --array=10-17 slurm flag causes the SLURM_ARRAY_TASK_ID variable to take on the numbers between 10 and 17, which match our split files (x10-17)
 * The script similarly outputs two files tagged with both the DBR and chunk number
 
 <br>
