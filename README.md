@@ -351,7 +351,7 @@ This is done separately for batch 1 and batch 2
   * Your digestion enzymes (see https://catchenlab.life.illinois.edu/stacks/comp/process_radtags.php for the full list)
     * For the Lounder data set, these are...
       * sbfI 
-      *mluCI
+      * mluCI
   * Your "barcode file", linking sample IDs to primer barcodes
     * This should be in the following format, the {tab}s replaced by hitting the tab key:
       * adapter1{tab}adapter2{tab}sample_ID
