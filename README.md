@@ -22,9 +22,7 @@ General notes:
 #### Some notes on the data set...
 
 * LESP extraction data set was assembled by Friesen Lab MSc student Heather Lounder
-* Heather did not keep copies of any of the intermediate Stacks/etc output data, just end-stage filtered VCFs, necessitating a full re-processing of the data from the original sequence files for all other analyses
 * Library prep for RadSeq was done by Zhengxin Sun in-house at Queen's University
-* Sequencing was done at... Genome Quebec?? Sick Kids??
 * Degenerate primers were used, following a previous protocol. I've included the explanation files and primer barcode/sample matches that I received from Zhengxin (in the primers folder of the GitHub repo)
 * Since this data set was intended originally to be used to test out a new genetic assignment program, some samples overlap between Heather's two batches of data--these can also be used to check/correct for batch effect differences between the two RadSeq runs
 * The primer/sample correspondence tables I received had a number of small typos--these have been corrected. However, from Zhengxin's library prep Excel sheets, it appears one sample was submitted in duplicate *within* the first RadSeq batch. Since I realized this after running the demultiplexing script, I believe the current file for the duplicate individual will correspond to sequences linked to its second set of tags (since the first will have been overwritten). I don't think there's any particular reason for having two samples from the same individual from the same RadSeq run, so I haven't bothered going back to re-acquire the 'missing' duplicate sequence.
