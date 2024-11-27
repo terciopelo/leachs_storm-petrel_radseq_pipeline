@@ -643,7 +643,7 @@ cd batch1/batch1_demultiplexed
 
 # for each bam file, add b1_ to the start of the file name
 for FILE in `ls -1 *.bam`; do
-mv $FILE b1_${FILE}
+ mv $FILE b1_${FILE}
 done
 ```
 
@@ -652,9 +652,9 @@ Batch 2
 cd ~/scratch/leachs_storm-petrel_radseq_pipeline
 cd batch2/batch2_demultiplexed
 
-# for each bam file, add b1_ to the start of the file name
+# for each bam file, add b2_ to the start of the file name
 for FILE in `ls -1 *.bam`; do
-mv $FILE b1_${FILE}
+ mv $FILE b2_${FILE}
 done
 ```
 
@@ -674,7 +674,7 @@ mkdir stacks_both
 
 #### Run gstacks
 
-Run the following script to generate a Stacks output folder. You can then use this output folder to generate filtered datasets; filtering is very quick and lightweight, so you can do it without using a SLURM script.
+Run the following script to generate a Stacks output folder, which includes variant calls (identification of variant sites within Rad loci). You can then use this output folder to generate filtered datasets; filtering is very quick and lightweight, so you can sometimes do it without using a SLURM script.
 
 ```
 #!/bin/bash
