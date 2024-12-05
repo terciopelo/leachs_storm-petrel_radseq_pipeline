@@ -729,7 +729,7 @@ sbatch populations_run.sh
 Notes:
 * This script will generate input formats for a wide variety of downstream programs. VCF files are the most widely used, but radpainter, structure, plink, and genepop are also commonly used. Phylip and treemix are mainly used for explicit phylogenetic reconstruction and comparative methods.
 
-### Downstream processing
+### Steps before downstream processing
 
 At this point, most folks use easySFS to generate a site frequency spectrum, and plink or similar to do PCA
 
@@ -765,3 +765,178 @@ Populations is done.
 ```
 
 I believe this *should* be the correct L to use, as it includes both monomorphic and polymorphic sites.
+
+<br>
+
+Once you have determined the appropriate population structure to use (i.e., if you are planning to combine populations that appear to be one metapopulation, etc.), generate a new popmap file that captures these changes. This walkthrough will continue to use the 
+
+### Step 8: Generating a site frequency spectrum using easySFS
+
+Clone easySFS GitHub repo
+```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
+git clone https://github.com/isaacovercast/easySFS.git
+```
+
+Set up a salloc and load some modules
+* easySFS usually runs very quickly, but should still use an interactive allocation
+* Need to load 'scipy-stack' in order to use numPy, other Python libraries
+```
+salloc --mem 40G --time 2:00:00
+module load python
+module load scipy-stack/2024a
+```
+
+Now, run easySFS using your vcf from populations. 
+
+First, can consider 'projecting' to a different sample of haploid sequences, Maximizing number of segregating sites is ideal, but might have the unintended consequence of adjusting the appropriate '0' bin ('L' parameter).
+```
+python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap --preview
+```
+
+This command will give you a list of possible projections for each population, along with number of sites using that projection. Choose either
+* Your original number of individuals (half the total number of possible projections for that population)
+* The projection that maximizes the number of sites
+  * If doing this, note down this number, since you will this for the 'number of sequences' parameter in your Stairway blueprint file
+
+Once you've decided on the appropriate projection(s) (or not), run the following to actually generate the spectr(a/um)
+
+```
+python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap --proj 300 -o leachs_sfs
+```
+Note:
+* the --proj flag takes a comma-separated list that equals the number of populations (i.e., if you had three populations, and wanted to project them to 20, 15, and 6 individuals, you'd put --proj 20,15,6. The order of the projection values must match the order of the populations in the --preview
+* the -o flag sets an output directory for the SFS files
+* If you have phased data, you can generate an unfolded SFS. Unfolded spectra are 'better' in that they have more data and can provide higher quality reconstructions. However, in many cases, a folded spectrum (in which you cannot identify derived alleles, so you cut the number of bins in half) is a safer bet. This walkthrough assumes you want to calculate folded spectra
+* If you want to generate an unfolded spectrum, just add: --unfolded, and then change the appropriate line in the Stairway blueprint file
+
+#### Obtain your SFS
+Navigate to your output folder, and open the fastsimcoal2 subfolder. View your population of interest's SFS using cat. 
+```
+cd leachs_sfs/fastsimcoal2
+cat LEACH_MAFpop0.obs
+```
+
+Sample output
+```
+1 observation
+d0_0    d0_1    d0_2    d0_3    d0_4    d0_5    d0_6    d0_7    d0_8    d0_9    d0_10   d0_11   d0_12   d0_13   d0_14   d0_15   d0_16   d0_17   d0_18   d0_19   d0_20   d0_21d0_22   d0_23   d0_24   d0_25   d0_26   d0_27   d0_28   d0_29   d0_30   d0_31   d0_32   d0_33   d0_34   d0_35   d0_36   d0_37   d0_38   d0_39   d0_40   d0_41   d0_42   d0_43d0_44   d0_45   d0_46   d0_47   d0_48   d0_49   d0_50   d0_51   d0_52   d0_53   d0_54   d0_55   d0_56   d0_57   d0_58   d0_59   d0_60
+10556.19919569802 19896.01521123987 10990.62841417877 9359.964578291187 8727.954655170079 8442.922303740483 8293.294725718804 8210.525941897724 8143.49314875933 8087.280338807373 8061.228572287448 8092.004519805983 8263.144439288679 8643.199955645947 9261.586038698679 10054.05570151849 10809.76082850619 11193.56656179125 10949.98432771224 10014.84800341565 8623.941827945506 7091.356912838354 5689.239364009318 4483.74343805637 3625.426216829019 2960.325469944967 2515.424398381165 2321.222349969891 2188.278499242968 2173.368962129355 1081.015098489607 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+```
+Copy just the numbers (not the d0_0, d0_1 ... etc). Delete the first number (0 bin). You will paste this into your blueprint file under the SFS line below.
+
+### Step 9: Run Stairway Plot v2
+
+Unzip prepared Stairway Plot folder
+```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline
+unzip stairway_plot_dir.zip
+```
+
+I've put a prepared sample blueprint file into this archive. For more information on running Stairway, consult the Stairway GitHub and manuals: https://github.com/xiaoming-liu/stairway-plot-v2/tree/master
+
+Generate blueprint input file
+```
+cd stairway_plot_v2.1.2
+nano seabird_stairway_fold.blueprint
+```
+
+Edit this blueprint file to match your species!
+Specifically, add...
+* popid: The correct popid from your popmap file
+* nseq: The number of sequences (number of individuals * 2, since they're diploid)
+* L (number of observed sites, including monomorphic sites). See text in previous sections.
+* whether_folded: if using an unfolded spectrum, change this to false
+* SFS: take the SFS (without the 0 bin) that you generated in Step 8 and paste it here
+* project_dir: the directory you wanted created to hold your stairway analysis files and results
+* mu: mutation rate--can set this if known
+* year_per_generation: if you don't know this, can check: https://doi.org/10.1111/cobi.13486
+```
+#example blueprint file
+#input setting
+popid: LEACH # id of the population (no white space)
+nseq: 30 # number of sequences
+L: 10000000 # total number of observed nucleic sites, including polymorphic and monomorphic
+whether_folded: true # whether the SFS is folded (true or false)
+SFS:    9638.215        3929.77 2243.5499999999997      1493.6750000000002      1110.74 891.8   759.3   667.465 606.0450000000001       567.165 539.245 
+#smallest_size_of_SFS_bin_used_for_estimation: 1 # default is 1; to ignore singletons, uncomment this line and change this number to 2
+#largest_size_of_SFS_bin_used_for_estimation: 15 # default is nseq/2 for folded SFS
+pct_training: 0.67 # percentage of sites for training
+nrand: 7        15      22      28 # number of random break points for each try (separated by white space)
+project_dir: seabird_species # project directory
+stairway_plot_dir: stairway_plot_es # directory to the stairway plot files
+ninput: 200 # number of input files to be created for each estimation
+#random_seed: 6
+#output setting
+mu: 1.2e-8 # assumed mutation rate per site per generation
+year_per_generation: 24 # assumed generation time (in years)
+#plot setting
+plot_title: two-epoch_fold # title of the plot
+xrange: 0.1,10000 # Time (1k year) range; format: xmin,xmax; "0,0" for default
+yrange: 0,0 # Ne (1k individual) range; format: xmin,xmax; "0,0" for default
+xspacing: 2 # X axis spacing
+yspacing: 2 # Y axis spacing
+fontsize: 12 # Font size
+```
+Note:
+* Can rename the file if you choose to match each species. If doing so, you'll need to edit the blueprint file name in the following script calls, and also in the SLURM script for running Stairway.
+
+Now, generate input files and script needed to run Stairway plot
+
+```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline/stairway_plot_v2.1.2
+module load java
+java -cp stairway_plot_es Stairbuilder seabird_stairway_fold.blueprint
+```
+
+This command will generate a folder named according to what you put in the project_dir line of the blueprint file. It will also generate a .sh script file that will be named using the name of the blueprint file you used (in this case, seabird_stairway_fold.blueprint.sh)
+
+Finally...actually run Stairway plot! I've included a SLURM script for this in the zipped Stairway archive.
+Stairway doesn't usually take a really long time to run, but for species with a large of number of sites, it might take several hours. This script allows 24 hours; can tweak if necessary.
+
+```
+#!/bin/bash
+#SBATCH -c 1
+#SBATCH --mem=24G
+#SBATCH -t 24:00:00
+#SBATCH --account=def-vlf
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=your_email@queensu.ca
+#SBATCH --job-name=run_seabird_stairway
+#SBATCH -o %x-%j.o
+#SBATCH -e %x-%j.e
+
+module load java/21.0.1
+
+bash seabird_stairway_fold.blueprint.sh
+```
+
+```
+sbatch run_stairway.sh
+```
+Note:
+* Since this is being run on a compute node, X11 display (which Stairway uses to generate plots) is not loaded, so final plotting will fail. However, the analysis will still run correctly. Once it has finished, you should see a new script file (created by Stairway during its run) which will be called "name_of_your_blueprint_file.blueprint.plot.sh". On a login node (with a salloc), you can now run the final 5 commands from the file.
+
+View the commands using tail
+```
+tail -n 5 seabird_stairway_fold.blueprint.plot.sh
+```
+Note:
+* If using a larger number of random breakpoints to try (nrand parameter in your blueprint file) adjust the number passed to tail in the -n parameter accordingly
+
+Copy these commands and then run them as below:
+```
+module load java
+java -Xmx4g -cp stairway_plot_es/:stairway_plot_es/gral-core-0.11.jar:stairway_plot_es/VectorGraphics2D-0.9.3.jar Stairway_output_summary_plot2 seabird_stairway_fold.blueprint
+java -Xmx4g -cp stairway_plot_es/:stairway_plot_es/gral-core-0.11.jar:stairway_plot_es/VectorGraphics2D-0.9.3.jar Stairway_output_summary_plot2 seabird_stairway_fold.blueprint rand7
+java -Xmx4g -cp stairway_plot_es/:stairway_plot_es/gral-core-0.11.jar:stairway_plot_es/VectorGraphics2D-0.9.3.jar Stairway_output_summary_plot2 seabird_stairway_fold.blueprint rand15
+java -Xmx4g -cp stairway_plot_es/:stairway_plot_es/gral-core-0.11.jar:stairway_plot_es/VectorGraphics2D-0.9.3.jar Stairway_output_summary_plot2 seabird_stairway_fold.blueprint rand22
+java -Xmx4g -cp stairway_plot_es/:stairway_plot_es/gral-core-0.11.jar:stairway_plot_es/VectorGraphics2D-0.9.3.jar Stairway_output_summary_plot2 seabird_stairway_fold.blueprint rand28
+```
+This will generate the PDF and PNG plot files.
+
+And you're done!
+
+
+
+
