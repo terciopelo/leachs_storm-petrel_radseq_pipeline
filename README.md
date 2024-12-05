@@ -794,21 +794,28 @@ First, can consider 'projecting' to a different sample of haploid sequences, Max
 python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap --preview
 ```
 
-This command will give you a list of possible projections for each population, along with number of sites using that projection. Choose either
+Sample output (from red-legged kittiwake data):
+```
+RLKI
+(2, 69427)      (3, 104138)     (4, 126089)     (5, 141659)     (6, 153391)     (7, 162556)     (8, 169898)     (9, 175898)     (10, 180889)    (11, 185104)    (12, 188714)(13, 191844)     (14, 194589)    (15, 197020)    (16, 199195)    (17, 201154)    (18, 202934)    (19, 204561)    (20, 206056)    (21, 207438)    (22, 208720)    (23, 209915)(24, 211035)     (25, 212085)    (26, 213075)    (27, 214006)    (28, 214893)    (29, 215732)    (30, 216533)    (31, 217293)    (32, 218024)    (33, 218720)    (34, 219391)(35, 220036)     (36, 220657)    (37, 221242)    (38, 221820)    (39, 222361)    (40, 222901)    (41, 223398)    (42, 223905)    (43, 224363)    (44, 224841)    (45, 225254)(46, 225707)     (47, 226049)    (48, 226479)    (49, 226763)    (50, 227172)    (51, 227360)    (52, 227751)    (53, 227825)    (54, 228199)    (55, 228097)    (56, 228455)(57, 228123)     (58, 228467)    (59, 227917)    (60, 228249)    (61, 227286)    (62, 227606)    (63, 226193)    (64, 226502)    (65, 224512)    (66, 224811)    (67, 222293)(68, 222583)     (69, 219438)    (70, 219719)    (71, 215807)    (72, 216080)    (73, 211583)    (74, 211849)    (75, 206531)    (76, 206790)    (77, 200478)    (78, 200730)(79, 193284)     (80, 193529)    (81, 185155)    (82, 185394)    (83, 175729)    (84, 175962)    (85, 164894)    (86, 165120)    (87, 152812)    (88, 153032)    (89, 139827)(90, 140039)     (91, 125899)    (92, 126101)    (93, 111299)    (94, 111490)    (95, 96609)     (96, 96785)     (97, 81876)     (98, 82036)     (99, 67850)     (100, 67992)(101, 54412)     (102, 54534)    (103, 42097)    (104, 42198)    (105, 31111)    (106, 31192)    (107, 21771)    (108, 21831)    (109, 14004)    (110, 14045)    (111, 8194) (112, 8219)      (113, 4245)     (114, 4258)     (115, 1885)     (116, 1891)     (117, 706)      (118, 708)      (119, 234)      (120, 235)
+
+```
+
+This command will give you a list of possible projections for each population, along with number of sites using that projection--format is (projection,sites). Choose either:
 * Your original number of individuals (half the total number of possible projections for that population)
 * The projection that maximizes the number of sites
   * If doing this, note down this number, since you will this for the 'number of sequences' parameter in your Stairway blueprint file
 
-Once you've decided on the appropriate projection(s) (or not), run the following to actually generate the spectr(a/um)
-
+Once you've decided on the appropriate projection(s) (or not), run the following to actually generate the spectr(a/um):
 ```
 python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap --proj 300 -o leachs_sfs
 ```
 Note:
-* the --proj flag takes a comma-separated list that equals the number of populations (i.e., if you had three populations, and wanted to project them to 20, 15, and 6 individuals, you'd put --proj 20,15,6. The order of the projection values must match the order of the populations in the --preview
+* the --proj flag takes a comma-separated list that equals the number of populations (i.e., if you had three populations, and wanted to project them to 20, 15, and 6 individuals, you'd put --proj 20,15,6. The order of the projection values must match the order of the populations in the --preview; or, you an set this explicitly using the --order flag
 * the -o flag sets an output directory for the SFS files
 * If you have phased data, you can generate an unfolded SFS. Unfolded spectra are 'better' in that they have more data and can provide higher quality reconstructions. However, in many cases, a folded spectrum (in which you cannot identify derived alleles, so you cut the number of bins in half) is a safer bet. This walkthrough assumes you want to calculate folded spectra
 * If you want to generate an unfolded spectrum, just add: --unfolded, and then change the appropriate line in the Stairway blueprint file
+* If running on multiple populations, this script will generate both individual population spectrums and also multi-dimensional spectra. The latter can sometimes take a long time, so consider dropping populations before this stage if this ends up being an issue for you.
 
 #### Obtain your SFS
 Navigate to your output folder, and open the fastsimcoal2 subfolder. View your population of interest's SFS using cat. 
@@ -848,8 +855,8 @@ Specifically, add...
 * L (number of observed sites, including monomorphic sites). See text in previous sections.
 * whether_folded: if using an unfolded spectrum, change this to false
 * SFS: take the SFS (without the 0 bin) that you generated in Step 8 and paste it here
-* project_dir: the directory you wanted created to hold your stairway analysis files and results
-* mu: mutation rate--can set this if known
+* project_dir: the directory you want created to hold your Stairway analysis files and results
+* mu: mutation rate--can set this to a dfferent species-specific value if known
 * year_per_generation: if you don't know this, can check: https://doi.org/10.1111/cobi.13486
 ```
 #example blueprint file
