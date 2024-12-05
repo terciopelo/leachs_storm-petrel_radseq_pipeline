@@ -768,7 +768,7 @@ I believe this *should* be the correct L to use, as it includes both monomorphic
 
 <br>
 
-Once you have determined the appropriate population structure to use (i.e., if you are planning to combine populations that appear to be one metapopulation, etc.), generate a new popmap file that captures these changes. This walkthrough will continue to use the 
+Once you have determined the appropriate population structure to use (i.e., if you are planning to combine populations that appear to be one metapopulation, etc.), generate a new popmap file that captures these changes. This walkthrough will imagine that you have named such a file "leachs_onepop.popmap".
 
 ### Step 8: Generating a site frequency spectrum using easySFS
 
