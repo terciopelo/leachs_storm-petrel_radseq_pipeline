@@ -922,7 +922,7 @@ bash seabird_stairway_fold.blueprint.sh
 sbatch run_stairway.sh
 ```
 Note:
-* Since this is being run on a compute node, X11 display (which Stairway uses to generate plots) is not loaded, so final plotting will fail. However, the analysis will still run correctly. Once it has finished, you should see a new script file (created by Stairway during its run) which will be called "name_of_your_blueprint_file.blueprint.plot.sh". On a login node (with a salloc), you can now run the final 5 commands from the file.
+* Since this is being run on a compute node, X11 display (which Stairway uses to generate plots) is not loaded, so final plotting will fail. However, the analysis will still run correctly. Once it has finished, you should see a new script file (created by Stairway during its run) which will be called "name_of_your_blueprint_file.blueprint.plot.sh". On a login node (that has X11 enabled), you can now run the final 5 commands from the file.
 
 View the commands using tail
 ```
