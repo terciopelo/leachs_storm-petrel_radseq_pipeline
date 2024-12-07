@@ -808,7 +808,7 @@ This command will give you a list of possible projections for each population, a
 
 Once you've decided on the appropriate projection(s) (or not), run the following to actually generate the spectr(a/um):
 ```
-python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap --proj 224 -o leachs_sfs
+python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap -a --proj 224 -o leachs_sfs
 ```
 Note:
 * the --proj flag takes a comma-separated list that equals the number of populations (i.e., if you had three populations, and wanted to project them to 20, 15, and 6 individuals, you'd put --proj 20,15,6. The order of the projection values must match the order of the populations in the --preview; or, you an set this explicitly using the --order flag
