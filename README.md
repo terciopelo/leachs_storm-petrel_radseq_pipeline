@@ -729,6 +729,8 @@ sbatch populations_run.sh
 Notes:
 * This script will generate input formats for a wide variety of downstream programs. VCF files are the most widely used, but radpainter, structure, plink, and genepop are also commonly used. Phylip and treemix are mainly used for explicit phylogenetic reconstruction and comparative methods.
 
+* Note: for Stairway plot analyses, omit the --min-maf 0.05 flag and parameter
+
 ### Steps before downstream processing
 
 At this point, most folks use easySFS to generate a site frequency spectrum, and plink or similar to do PCA
