@@ -720,7 +720,7 @@ Run script
 
 module load stacks
 
-populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --genepop --structure --plink --phylip --treemix
+populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
 ```
 
 ```
@@ -734,41 +734,6 @@ Notes:
 ### Steps before downstream processing
 
 At this point, most folks use easySFS to generate a site frequency spectrum, and plink or similar to do PCA
-
-Notes on using Stairway plot:
-* To correctly estimate Ne, you need to provide Stairway plot with an accurate 'L'. The L parameter is the length of sequence/number of sites surveyed for variation. This changes depending on your filtering, and Ne can be over/under estimated if you get this parameter wrong. To determine what it should be for your data set, following your final filtering using populations, run:
-
-```
-tail -n  20  populations.log
-```
-
-and look for the 'genomic sites' parameter reported here:
-
-```
-Removed 1060001 loci that did not pass sample/population constraints from 1102457 loci.
-Kept 42456 loci, composed of 13684652 sites; 6246148 of those sites were filtered, 62363 variant sites remained.
-    7577896 genomic sites, of which 14449 were covered by multiple loci (0.2%).
-Mean genotyped sites per locus: 178.85bp (stderr 0.42).
-
-Population summary statistics (more detail in populations.sumstats_summary.tsv):
-  Baccalieu: 34.057 samples per locus; pi: 0.29648; all/variant/polymorphic sites: 7493660/61235/60938; private alleles: 0
-  Gull: 43.048 samples per locus; pi: 0.29775; all/variant/polymorphic sites: 7481718/60974/60867; private alleles: 0
-  Country: 22.265 samples per locus; pi: 0.29624; all/variant/polymorphic sites: 7402803/60971/59778; private alleles: 0
-  Kent: 21.227 samples per locus; pi: 0.29657; all/variant/polymorphic sites: 7446907/60919/59605; private alleles: 0
-  Bon_Portage: 19.162 samples per locus; pi: 0.29855; all/variant/polymorphic sites: 7457632/60866/59410; private alleles: 0
-  Middle_Lawn: 16.749 samples per locus; pi: 0.29195; all/variant/polymorphic sites: 7454154/58622/56357; private alleles: 0
-  Corossol: 15.374 samples per locus; pi: 0.29624; all/variant/polymorphic sites: 7461236/61066/58292; private alleles: 0
-  Hernyken: 23.063 samples per locus; pi: 0.29393; all/variant/polymorphic sites: 7566670/60947/59936; private alleles: 0
-  Unknown: 79.462 samples per locus; pi: 0.29843; all/variant/polymorphic sites: 7564697/61886/61879; private alleles: 0
-  Green: 20.407 samples per locus; pi: 0.29744; all/variant/polymorphic sites: 7474731/61594/60324; private alleles: 0
-  Baja: 3 samples per locus; pi: 0.14971; all/variant/polymorphic sites: 7355412/55459/18050; private alleles: 0
-  Iceland: 14.681 samples per locus; pi: 0.29676; all/variant/polymorphic sites: 7535137/60468/58054; private alleles: 0
-Populations is done.
-```
-
-I believe this *should* be the correct L to use, as it includes both monomorphic and polymorphic sites.
-
-<br>
 
 Once you have determined the appropriate population structure to use (i.e., if you are planning to combine populations that appear to be one metapopulation, etc.), generate a new popmap file that captures these changes. This walkthrough will imagine that you have named such a file "leachs_onepop.popmap". For the Leach's data set, I have currently done this by removing all unknowns, and the samples that overlapped between batch 1 and 2 (removed the ones from batch 1), and setting all population names to LEACH. If dropping populations, it's a good idea to re-run populations with the new popmap since you'll likely be able to retain more sites.
 
@@ -810,7 +775,7 @@ This command will give you a list of possible projections for each population, a
 
 Once you've decided on the appropriate projection(s) (or not), run the following to actually generate the spectr(a/um):
 ```
-python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap -a --proj 224 -o leachs_sfs
+python easySFS/easySFS.py -i ./stacks_prelim_test/populations.snps.vcf -p leachs_onepop.popmap -a --proj 224 -o leachs_sfs 
 ```
 Note:
 * the --proj flag takes a comma-separated list that equals the number of populations (i.e., if you had three populations, and wanted to project them to 20, 15, and 6 individuals, you'd put --proj 20,15,6. The order of the projection values must match the order of the populations in the --preview; or, you an set this explicitly using the --order flag
@@ -818,6 +783,7 @@ Note:
 * If you have phased data, you can generate an unfolded SFS. Unfolded spectra are 'better' in that they have more data and can provide higher quality reconstructions. However, in many cases, a folded spectrum (in which you cannot identify derived alleles, so you cut the number of bins in half) is a safer bet. This walkthrough assumes you want to calculate folded spectra
 * If you want to generate an unfolded spectrum, just add: --unfolded, and then change the appropriate line in the Stairway blueprint file
 * If running on multiple populations, this script will generate both individual population spectrums and also multi-dimensional spectra. The latter can sometimes take a long time, so consider dropping populations before this stage if this ends up being an issue for you.
+* If not using the 'vcf-all' flag in populations, use the --total-length flag to specify the total number of genomic sites surveyed, which should help ensure the 0 bin (monomorphic sites) is more accurate
 
 #### Obtain your SFS
 Navigate to your output folder, and open the fastsimcoal2 subfolder. View your population of interest's SFS using cat. 
@@ -832,7 +798,16 @@ Sample output
 d0_0    d0_1    d0_2    d0_3    d0_4    d0_5    d0_6    d0_7    d0_8    d0_9    d0_10   d0_11   d0_12   d0_13   d0_14   d0_15   d0_16   d0_17   d0_18   d0_19   d0_20   d0_21d0_22   d0_23   d0_24   d0_25   d0_26   d0_27   d0_28   d0_29   d0_30   d0_31   d0_32   d0_33   d0_34   d0_35   d0_36   d0_37   d0_38   d0_39   d0_40   d0_41   d0_42   d0_43d0_44   d0_45   d0_46   d0_47   d0_48   d0_49   d0_50   d0_51   d0_52   d0_53   d0_54   d0_55   d0_56   d0_57   d0_58   d0_59   d0_60
 10556.19919569802 19896.01521123987 10990.62841417877 9359.964578291187 8727.954655170079 8442.922303740483 8293.294725718804 8210.525941897724 8143.49314875933 8087.280338807373 8061.228572287448 8092.004519805983 8263.144439288679 8643.199955645947 9261.586038698679 10054.05570151849 10809.76082850619 11193.56656179125 10949.98432771224 10014.84800341565 8623.941827945506 7091.356912838354 5689.239364009318 4483.74343805637 3625.426216829019 2960.325469944967 2515.424398381165 2321.222349969891 2188.278499242968 2173.368962129355 1081.015098489607 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
-Copy just the numbers (not the d0_0, d0_1 ... etc). Delete the first number (0 bin). You will paste this into your blueprint file under the SFS line below.
+Copy just the numbers (not the d0_0, d0_1 ... etc). Delete the first number (0 bin / monomorphic sites). You will then paste this set of numbers into your blueprint file under the SFS line below.
+
+To get your L parameter (when using --vcf-all), open R and run...
+
+```
+library(tidyverse)
+dat = read_table("LEACH_MAFpop0.obs"), skip=1)
+sum(dat)
+```
+
 
 ### Step 9: Run Stairway Plot v2
 
@@ -853,10 +828,10 @@ nano seabird_stairway_fold.blueprint
 Edit this blueprint file to match your species!
 Specifically, add...
 * popid: The correct popid from your popmap file
-* nseq: The number of sequences (number of individuals * 2, since they're diploid)
+* nseq: The number of sequences (number of diploid sequences!! So your projection number from easySFS x 2)
 * L (number of observed sites, including monomorphic sites). See text in previous sections.
 * whether_folded: if using an unfolded spectrum, change this to false
-* SFS: take the SFS (without the 0 bin) that you generated in Step 8 and paste it here
+* SFS: take the SFS (without the 0 bin) that you generated in Step 8 and paste it here (should be number of sequences / 2 bins)
 * project_dir: the directory you want created to hold your Stairway analysis files and results
 * mu: mutation rate--can set this to a dfferent species-specific value if known
 * year_per_generation: if you don't know this, can check: https://doi.org/10.1111/cobi.13486
@@ -864,7 +839,7 @@ Specifically, add...
 #example blueprint file
 #input setting
 popid: LEACH # id of the population (no white space)
-nseq: 30 # number of sequences
+nseq: 224 # number of sequences
 L: 10000000 # total number of observed nucleic sites, including polymorphic and monomorphic
 whether_folded: true # whether the SFS is folded (true or false)
 SFS:    9638.215        3929.77 2243.5499999999997      1493.6750000000002      1110.74 891.8   759.3   667.465 606.0450000000001       567.165 539.245 
