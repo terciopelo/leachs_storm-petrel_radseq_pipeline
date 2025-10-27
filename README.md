@@ -804,9 +804,10 @@ To get your L parameter (when using --vcf-all), open R and run...
 
 ```
 library(tidyverse)
-dat = read_table("LEACH_MAFpop0.obs"), skip=1)
+dat = read_table("LEACH_MAFpop0.obs", skip=1)
 sum(dat)
 ```
+The number printed should be used as the 'L' parameter in your Stairway blueprint file.
 
 
 ### Step 9: Run Stairway Plot v2
