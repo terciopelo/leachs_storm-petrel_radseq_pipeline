@@ -817,6 +817,8 @@ print(paste(dat, collapse=" "))
 ```
 Copy this number string (don't copy the quotes), and paste it into the SFS field in your blueprint file.
 
+If you're using an unfolded spectrum, only delete the first bin and last bins (monomorphic sites), then copy all other bins and paste them into your blueprint file under SFS.
+
 ### Step 9: Run Stairway Plot v2
 
 Unzip prepared Stairway Plot folder
@@ -836,8 +838,7 @@ nano seabird_stairway_fold.blueprint
 Edit this blueprint file to match your species!
 Specifically, add...
 * popid: The correct popid from your popmap file
-* nseq: The number of sequences (number of diploid sequences!! So your projection number from easySFS x 2)
-* L (number of observed sites, including monomorphic sites). See text in previous sections.
+* nseq: The number of haploid sequences (i.e., the projection value you chose when running easySFS)
 * whether_folded: if using an unfolded spectrum, change this to false
 * SFS: take the SFS (without the 0 bin) that you generated in Step 8 and paste it here (should be number of sequences / 2 bins)
 * project_dir: the directory you want created to hold your Stairway analysis files and results
