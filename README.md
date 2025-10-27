@@ -798,7 +798,7 @@ Sample output
 d0_0    d0_1    d0_2    d0_3    d0_4    d0_5    d0_6    d0_7    d0_8    d0_9    d0_10   d0_11   d0_12   d0_13   d0_14   d0_15   d0_16   d0_17   d0_18   d0_19   d0_20   d0_21d0_22   d0_23   d0_24   d0_25   d0_26   d0_27   d0_28   d0_29   d0_30   d0_31   d0_32   d0_33   d0_34   d0_35   d0_36   d0_37   d0_38   d0_39   d0_40   d0_41   d0_42   d0_43d0_44   d0_45   d0_46   d0_47   d0_48   d0_49   d0_50   d0_51   d0_52   d0_53   d0_54   d0_55   d0_56   d0_57   d0_58   d0_59   d0_60
 10556.19919569802 19896.01521123987 10990.62841417877 9359.964578291187 8727.954655170079 8442.922303740483 8293.294725718804 8210.525941897724 8143.49314875933 8087.280338807373 8061.228572287448 8092.004519805983 8263.144439288679 8643.199955645947 9261.586038698679 10054.05570151849 10809.76082850619 11193.56656179125 10949.98432771224 10014.84800341565 8623.941827945506 7091.356912838354 5689.239364009318 4483.74343805637 3625.426216829019 2960.325469944967 2515.424398381165 2321.222349969891 2188.278499242968 2173.368962129355 1081.015098489607 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
-Copy just the numbers (not the d0_0, d0_1 ... etc). Delete the first number (0 bin / monomorphic sites). You will then paste this set of numbers into your blueprint file under the SFS line below.
+Copy just the numbers (not the d0_0, d0_1 ... etc). Delete the first number (0 bin / monomorphic sites), and omit any bins beyond (1/2 your projection value + 1). You will then paste this set of numbers into your blueprint file under the SFS line below.
 
 To get your L parameter (when using --vcf-all), open R and run...
 
@@ -809,6 +809,13 @@ sum(dat)
 ```
 The number printed should be used as the 'L' parameter in your Stairway blueprint file.
 
+To obtain only the sites you need to copy into easySFS, then run:
+
+```
+dat = dat[2:(length(dat)/2 +1)]
+print(paste(dat, collapse=" "))
+```
+Copy this number string (don't copy the quotes), and paste it into the SFS field in your blueprint file.
 
 ### Step 9: Run Stairway Plot v2
 
