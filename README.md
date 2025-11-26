@@ -930,6 +930,107 @@ This will generate the PDF and PNG plot files.
 
 And you're done!
 
+### Running GONE
+* copy GONE folder to your home directory for easiest use later
+
+```
+# grab GONE
+cd ~
+git clone https://github.com/esrud/GONE.git
+```
+
+Enter GONE directory, change permissions for all GONE executables
+
+```
+cd GONE/Linux/PROGRAMMES/
+chmod +x GONE GONEaverage GONEparallel.sh LD_SNP_REAL3 MANAGE_CHROMOSOMES2 SUMM_REP_CHROM3
+```
+  
+### Setup for GONE
+
+* Gone is fairly simple to run, but has a couple idiosyncrasies
+* When running Stacks 'populations', need to request plink output files
+
+* To make a 'GONE' format plink file, scaffolds (or chromosomes) need to be renamed to 1-200 (max allowed). Fewer than 200 is fine, especially if you have a higher quality reference genome that's chromosome level. However, plink is human focused, so you'll still need to tweak chromosome naming/etc even if you have a chromosome level assembly, since bird genomes have more chromosomes than humans (especially microchromosomes). Use -99 in the input file to denote that all chromosomes should be used.
+
+* To achieve this, first need to identify the largest 200 scaffolds, retain only those in the plink files, then rename the chromosomes to 1-200 in the map file. If you try to use 'named' chromosomes (i.e., not integers), GONE will crash
+
+```
+module load samtools
+samtools idxstats <repesentative_bam> > ivory_scaffolds_all.txt 
+
+# sort by length, get top 200 longest scaffolds, write to file
+sort -k2 -n -r ivory_scaffolds_all.txt | head -n 200 | cut -f 1 > ivory_scaff_top_200.txt
+```
+
+Now, filter plink files to just these largest 200 scaffolds, and do some manual map file editing
+
+```
+module load StdEnv/2020 plink/1.9b_6.21-x86_64
+
+# obtain names of all chromosomes to pass into plink
+# note: plink requires named chromosomes to be specified --chr <name>,<space><name>, etc...
+all_chroms=""
+while read p; do all_chroms=`echo -n ${all_chroms}, ${p}`; done < ivory_scaff_top_200.txt
+# drop leading comma
+all_chroms="${all_chroms:1}"
+
+cd stacks_onepop_3rm
+plink --file populations.plink --double-id --allow-extra-chr --chr ${all_chroms} --recode --out ivory_plink_top200
+
+# get new chrom list in case any chromosomes had no variants
+cat ivory_plink_top200.map | cut -f 1 | uniq > new_chrom_list_200.txt
+
+# make look-up file
+touch chrom_200_lookup.txt
+var_i=1
+while read p; do echo ${p},${var_i} >> chrom_200_lookup.txt; var_i=`expr $var_i + 1`; done < new_chrom_list_200.txt
+
+# convert chromosome names to numbers in map file (for GONE formatting)
+while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" ivory_plink_top200.map; done < chrom_200_lookup.txt
+```
+
+Now, create a working directory for your GONE analysis
+
+```
+# create a working directory for your GONE analysis
+mkdir ivgu_gone
+cd ivgu_gone
+
+# copy in GONE executables and scripts
+cp -r ~/GONE/Linux/INPUT_PARAMETERS_FILE ~/GONE/Linux/PROGRAMMES/ ~/GONE/Linux/script_GONE.sh .
+
+# copy in your map and ped files
+cp ~/<your_working_dir>/data.map ~/<your_working_dir>/data.ped
+```
+
+Now, do any necessary editing of INPUT_PARAMETER_FILE
 
 
+Run GONE
+* actually runs quite quickly, can run in a salloc
+
+```
+salloc --mem 40G --time 2:00:00
+
+bash script_GONE.sh <file_prefix_before.ped/.map>
+```
+
+Preliminary R plotting code
+
+```
+library(tidyverse)
+dat = read_delim("Output_Ne_ivory_plink_top200", skip=1)
+
+# plot in units of generation time
+pdf("base_r_gone_testplot_ivgu.pdf")
+plot(Geometric_mean~Generation, data=dat)
+dev.off()
+
+# convert to 'actual' time
+dat$raw_time = dat$Generation * 7.9
+pdf("base_r_gone_testplot_ivgu_time.pdf", width=18, height=8)
+plot(Geometric_mean~raw_time, xlab="Time",  data=dat)
+dev.off()
+```
 
