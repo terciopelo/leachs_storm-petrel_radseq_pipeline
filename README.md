@@ -976,7 +976,10 @@ while read p; do all_chroms=`echo -n ${all_chroms}, ${p}`; done < ivory_scaff_to
 all_chroms="${all_chroms:1}"
 
 cd stacks_onepop_3rm
-plink --file populations.plink --double-id --allow-extra-chr --chr ${all_chroms} --recode --out ivory_plink_top200
+plink --file populations.plink --double-id --allow-extra-chr --chr ${all_chroms} --recode --out ivory_plink_top200_named
+
+cp ivory_plink_top200_named.map ivory_plink_top200.map
+cp ivory_plink_top200_named.ped ivory_plink_top200.ped
 
 # get new chrom list in case any chromosomes had no variants
 cat ivory_plink_top200.map | cut -f 1 | uniq > new_chrom_list_200.txt
@@ -1014,6 +1017,60 @@ Run GONE
 salloc --mem 40G --time 2:00:00
 
 bash script_GONE.sh <file_prefix_before.ped/.map>
+```
+
+Looping GONE over multiple colonies
+
+* You will need your colony popmap file (my file was popmap_adults.txt)
+
+This first (long) loop will generate one GONE format plink file for every unique population in your popmap. You will need to tweak paths to your plink files to match your directories, and will need to tweak the 'family' portion of the keep file.
+
+Other notes...
+* Run this after you've already run GONE initially (makes use of the scaffold files, and the 'named' top200 plink files). If you've already used my script to convert your top200 into GONE format, you'll unfortunately have to re-run the preceding step
+* You may need to check your 'family' names (actually your popmap names). The files I generated are for my specific ivory gull situation, where I had named the overall population 'global'. Whatever you named your population should go in place of global (for whichever population you're splitting)
+* change the paths of the plink files to match your directory tree
+
+```
+for POP in `cut -f 2 popmap_adults.txt | uniq`; do grep $POP popmap_adults.txt | cut -f 1 > split_popmap_${POP}.txt; for LINE in `cat split_popmap_${POP}.txt`; do touch temp.txt; printf "global\t${LINE}\n" >> temp.txt; done; mv temp.txt split_popmap_${POP}.txt; plink --file stacks_onepop_3rm/ivory_plink_top200_named --keep split_popmap_${POP}.txt --double-id --allow-extra-chr --recode --out stacks_onepop_3rm/ivory_plink_top200_${POP}; while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" stacks_onepop_3rm/ivory_plink_top200_${POP}.map; done < stacks_onepop_3rm/chrom_200_lookup.txt; done
+
+```
+
+Open the folder containing your plink files, and make a new file called "run_gone.sh". The script file should contain:
+
+```
+# create a working directory for your GONE analysis
+wd=$1
+map=$2
+ped=$3
+prefix=$4
+
+mkdir $wd
+cd $wd
+
+# copy in GONE executables and scripts
+cp -r ~/GONE/Linux/INPUT_PARAMETERS_FILE ~/GONE/Linux/PROGRAMMES/ ~/GONE/Linux/                                                                                                     script_GONE.sh .
+
+# copy in your map and ped files
+cp $map $ped .
+
+bash script_GONE.sh $prefix
+```
+
+Make the file executable
+
+```
+chmod +x run_gone.sh
+```
+
+Now, open a salloc and run GONE once for every plink POP file
+* again, will need to tweak paths. Make sure that the paths to your map and ped files are absolute paths!
+* If you have a lot of populations, may need to increase the amount of time requested
+```
+salloc --mem 40G --time 2:00:00
+
+# change the absolute paths here to the appropriate ones for your cluster (to the folder containing your plink files)
+for POP in `cut -f 2 ../popmap_adults.txt | uniq`; do bash run_gone.sh gone_${POP} /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.map /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.ped ivory_plink_top200_${POP}; done
+
 ```
 
 Preliminary R plotting code
