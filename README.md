@@ -737,6 +737,63 @@ At this point, most folks use easySFS to generate a site frequency spectrum, and
 
 Once you have determined the appropriate population structure to use (i.e., if you are planning to combine populations that appear to be one metapopulation, etc.), generate a new popmap file that captures these changes. This walkthrough will imagine that you have named such a file "leachs_onepop.popmap". For the Leach's data set, I have currently done this by removing all unknowns, and the samples that overlapped between batch 1 and 2 (removed the ones from batch 1), and setting all population names to LEACH. If dropping populations, it's a good idea to re-run populations with the new popmap since you'll likely be able to retain more sites.
 
+### Step 7.5: Removing scaffolds on sex chromosomes
+
+* This is still a bit experimental. Thanks to Spencer for the original code!
+* This script will align your reference genome against a reference genome of closely-related species that contains sex chromosomes
+* If your reference genome already contains sex chromosomes, there's no need to do the aligment--just run a vcftools command with --not-chr w_chromosome_id --not-chr z_chromosome_id
+* Should update this to include mitochondrial loci as well
+
+First, obtain a close-relative reference genome from NCBI that is chromosome-level (you can use the "Taxonomy" feature to help you find this)
+
+Enter your reference genome folder and download/unzip the genome
+e.g., for the kittiwake chromosome-level reference genome...
+
+```
+cd ~/scratch/leachs_storm-petrel_radseq_pipeline/refgenome
+
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/028/500/815/GCF_028500815.1_bRisTri1.patW.cur.20221130/GCF_028500815.1_bRisTri1.patW.cur.20221130_genomic.fna.gz
+
+gunzip GCF_028500815.1_bRisTri1.patW.cur.20221130_genomic.fna.gz
+mv GCF_028500815.1_bRisTri1.patW.cur.20221130_genomic.fna kittiwake_ref.fa
+```
+
+Next, adjust find the names of the sex chromosomes (can do this on NCBI by clicking directly on them on the genome page). Add them to the "get_sex_linked_contig.sh" script, and adjust the other variables in the script according to your data set.
+```
+chromosomal_refGenomeList=("kittiwake_ref.fa") #this is the genome to align against (the chromosome-level one)
+chromosomal_speciesNames=("rissa_tridactyla") # name of the species for the chromosome-level reference
+z_chromosome_names=("NC_071497.1") # z chromosome ID
+w_chromosome_names=("NC_071496.1") # w chromosome ID
+
+scaffold_refGenomeList=("ref_genome.fa") # your focal species' reference genome (generally no need to change)
+scaffold_speciesNames=("pagophila_eburnea") # name of your focal species
+```
+
+Next, run the script:
+
+```
+sbatch get_sex_linked_contig.sh
+```
+
+Now, use the files generated to filter your VCF
+
+```
+module load vcftools
+# get vcftools command
+cat *_contigs.txt | uniq > temp.txt
+echo -n "vcftools --vcf populations.all.vcf --out populations_nosex " > vcf_command.txt
+while read p; do echo -n "--not-chr ${p} " >> vcf_command.txt; done < temp.txt
+
+# copy this command to your populations folder
+cp vcf_command.txt <your_populations_folder>
+
+cd <your_populations_folder>
+
+bash vcf_command.txt
+```
+
+
+
 ### Step 8: Generating a site frequency spectrum using easySFS
 
 Clone easySFS GitHub repo
