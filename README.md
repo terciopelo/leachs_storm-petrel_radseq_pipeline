@@ -781,7 +781,7 @@ Now, use the files generated to filter your VCF
 module load vcftools
 # get vcftools command
 cat *_contigs.txt | uniq > temp.txt
-echo -n "vcftools --vcf populations.all.vcf --out populations_nosex " > vcf_command.txt
+echo -n "vcftools --vcf populations.all.vcf --recode --out populations_nosex " > vcf_command.txt
 while read p; do echo -n "--not-chr ${p} " >> vcf_command.txt; done < temp.txt
 
 # copy this command to your populations folder
