@@ -1039,7 +1039,7 @@ cp ivory_plink_top200_named.map ivory_plink_top200.map
 cp ivory_plink_top200_named.ped ivory_plink_top200.ped
 
 # get new chrom list in case any chromosomes had no variants
-cat ivory_plink_top200.map | cut -f 1 | sort -u -k 1> new_chrom_list_200.txt
+cat ivory_plink_top200.map | cut -f 1 | sort -u -k 1 > new_chrom_list_200.txt
 
 # make look-up file
 touch chrom_200_lookup.txt
