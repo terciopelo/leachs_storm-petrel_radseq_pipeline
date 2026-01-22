@@ -1126,7 +1126,7 @@ Now, open a salloc and run GONE once for every plink POP file
 salloc --mem 40G --time 2:00:00
 
 # change the absolute paths here to the appropriate ones for your cluster (to the folder containing your plink files)
-for POP in `cut -f 2 ../popmap_adults.txt | uniq`; do bash run_gone.sh gone_${POP} /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.map /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.ped ivory_plink_top200_${POP}; done
+for POP in `cut -f 2 ../popmap_adults.txt | sort -u -k 1`; do bash run_gone.sh gone_${POP} /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.map /global/home/hpc5400/scratch/ivory_gull_stairway/leachs_storm-petrel_radseq_pipeline/stacks_onepop_3rm/ivory_plink_top200_${POP}.ped ivory_plink_top200_${POP}; done
 
 ```
 
