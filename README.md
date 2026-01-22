@@ -1088,7 +1088,7 @@ Other notes...
 * change the paths of the plink files to match your directory tree
 
 ```
-for POP in `cut -f 2 popmap_adults.txt | uniq`; do grep $POP popmap_adults.txt | cut -f 1 > split_popmap_${POP}.txt; for LINE in `cat split_popmap_${POP}.txt`; do touch temp.txt; printf "global\t${LINE}\n" >> temp.txt; done; mv temp.txt split_popmap_${POP}.txt; plink --file stacks_onepop_3rm/ivory_plink_top200_named --keep split_popmap_${POP}.txt --double-id --allow-extra-chr --recode --out stacks_onepop_3rm/ivory_plink_top200_${POP}; while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" stacks_onepop_3rm/ivory_plink_top200_${POP}.map; done < stacks_onepop_3rm/chrom_200_lookup.txt; done
+for POP in `cut -f 2 popmap_adults.txt | sort -u -k 1`; do grep $POP popmap_adults.txt | cut -f 1 > split_popmap_${POP}.txt; for LINE in `cat split_popmap_${POP}.txt`; do touch temp.txt; printf "global\t${LINE}\n" >> temp.txt; done; mv temp.txt split_popmap_${POP}.txt; plink --file stacks_onepop_3rm/ivory_plink_top200_named --keep split_popmap_${POP}.txt --double-id --allow-extra-chr --recode --out stacks_onepop_3rm/ivory_plink_top200_${POP}; while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" stacks_onepop_3rm/ivory_plink_top200_${POP}.map; done < stacks_onepop_3rm/chrom_200_lookup.txt; done
 
 ```
 
