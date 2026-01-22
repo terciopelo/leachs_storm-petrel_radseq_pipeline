@@ -780,7 +780,7 @@ Now, use the files generated to filter your VCF
 ```
 module load vcftools
 # get vcftools command
-cat *_contigs.txt | uniq > temp.txt
+cat *_contigs.txt | sort -u -k1 > temp.txt
 echo -n "vcftools --vcf populations.all.vcf --recode --out populations_nosex " > vcf_command.txt
 while read p; do echo -n "--not-chr ${p} " >> vcf_command.txt; done < temp.txt
 
@@ -1039,7 +1039,7 @@ cp ivory_plink_top200_named.map ivory_plink_top200.map
 cp ivory_plink_top200_named.ped ivory_plink_top200.ped
 
 # get new chrom list in case any chromosomes had no variants
-cat ivory_plink_top200.map | cut -f 1 | uniq > new_chrom_list_200.txt
+cat ivory_plink_top200.map | cut -f 1 | sort -u -k 1> new_chrom_list_200.txt
 
 # make look-up file
 touch chrom_200_lookup.txt
@@ -1088,7 +1088,7 @@ Other notes...
 * change the paths of the plink files to match your directory tree
 
 ```
-for POP in `cut -f 2 popmap_adults.txt | sort -u -k 1`; do grep $POP popmap_adults.txt | cut -f 1 > split_popmap_${POP}.txt; for LINE in `cat split_popmap_${POP}.txt`; do touch temp.txt; printf "global\t${LINE}\n" >> temp.txt; done; mv temp.txt split_popmap_${POP}.txt; plink --file stacks_onepop_3rm/ivory_plink_top200_named --keep split_popmap_${POP}.txt --double-id --allow-extra-chr --recode --out stacks_onepop_3rm/ivory_plink_top200_${POP}; while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" stacks_onepop_3rm/ivory_plink_top200_${POP}.map; done < stacks_onepop_3rm/chrom_200_lookup.txt; done
+for POP in `cut -f 2 popmap_adults.txt | sort -u -k 1`; do grep $POP popmap_adults.txt | cut -f 1 > split_popmap_${POP}.txt; for LINE in `cat split_popmap_${POP}.txt`; do touch temp.txt; printf "${POP}\t${LINE}\n" >> temp.txt; done; mv temp.txt split_popmap_${POP}.txt; plink --file stacks_onepop_3rm/ivory_plink_top200_named --keep split_popmap_${POP}.txt --double-id --allow-extra-chr --recode --out stacks_onepop_3rm/ivory_plink_top200_${POP}; while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" stacks_onepop_3rm/ivory_plink_top200_${POP}.map; done < stacks_onepop_3rm/chrom_200_lookup.txt; done
 
 ```
 
