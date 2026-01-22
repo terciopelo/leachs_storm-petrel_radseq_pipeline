@@ -1105,7 +1105,7 @@ mkdir $wd
 cd $wd
 
 # copy in GONE executables and scripts
-cp -r ~/GONE/Linux/INPUT_PARAMETERS_FILE ~/GONE/Linux/PROGRAMMES/ ~/GONE/Linux/                                                                                                     script_GONE.sh .
+cp -r ~/GONE/Linux/INPUT_PARAMETERS_FILE ~/GONE/Linux/PROGRAMMES/ ~/GONE/Linux/script_GONE.sh .
 
 # copy in your map and ped files
 cp $map $ped .
