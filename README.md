@@ -776,7 +776,7 @@ Run script
 
 module load stacks
 
-populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
+populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --blacklist ./refgenome/blacklist.txt --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
 ```
 
 ```
