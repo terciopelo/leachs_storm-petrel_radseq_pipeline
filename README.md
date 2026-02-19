@@ -698,6 +698,154 @@ gstacks -I ./bams_both_batches -O ./stacks_both --min-mapq 20 -M popmap_w_batche
 
 Filtering RadSeq data can be tricky. The parameters I use below are preliminary for this data set. For a more extensive treatment of the topic see this Speciation Genomics walkthrough (https://speciationgenomics.github.io/filtering_vcfs/) that provides code for assessing summary stats and filtering accordingly.
 
+#### Depth filtering
+* Extremely high depth sites may be mitochondrial, or may be duplicated regions, or potentially even sequening errors, so it's probably a good idea to identify them and remove them. Similarly, low depth sites may not be called with confidence.
+
+* Probably the most direct way of doing this is to run populations preliminarily (since populations unfortunately doesn't have a max depth thresholding option)
+
+Run populations
+e.g.,
+```
+salloc --mem 40G --time 2:00:00 -c 8
+module load stacks
+populations -P ./stacks_both -O ./stacks_prelim_test -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
+```
+
+After you've run populations, use vcftools to obtain a depth-per-site report, averaged by individual
+
+```
+cd stacks_prelim_test
+module load vcftools
+vcftools --site-mean-depth --vcf populations.all.vcf --out depth_stats
+```
+
+Next, go to your gstacks folder, and obtain depth statistics from gstacks logfile
+```
+grep coverage ../stacks_both/gstacks.log
+```
+
+This will yield, for the Leach's storm-petrel data set, for example...
+```
+effective per-sample coverage: mean=28.9x, stdev=19.7x, min=1.2x, max=90.5x
+```
+
+It probably makes sense to set a hard lower cutoff at 8x, and then have the upper threshold be the mean + 2 SD (68.3x)
+
+If interested, you can also open the depth file in R and generate a depth histogram
+
+```
+module load r/4.4.0
+R
+
+library(tidyverse)
+dat = read_delim("depth_stats.ldepth.mean")
+
+num_breaks = max(dat$MEAN_DEPTH,na.rm=T)
+
+# output a PDF plot
+pdf("depth_stats_persite_histogram.pdf")
+hist(dat$MEAN_DEPTH, breaks = num_breaks)
+dev.off()
+```
+
+Use this histogram to assess your thresholding choices.
+
+Once you're satisfied with your depth thresholds, run the following command to obtain scaffolds with unusually high depth:
+
+```
+awk '$3 >= 68.3 || $3 < 8' depth_stats.ldepth.mean > depth_droplist.txt
+
+awk '$3 != "-nan"' depth_droplist.txt > depth_droplist_nonan.txt
+```
+
+Now, switch to working on the the Stacks catalog to figure out which loci correspond to these scaffold positions...
+
+```
+# navigate to your gstacks folder
+cd ../stacks_both
+
+# get headers, convert to a bed-file-esque format
+# get header lines only
+zcat catalog.fa.gz  | awk '(NR % 2) {print}'> catalog_headers.txt
+
+# trim to only relevant fields (chromosome, start position)
+cut -d: -f 1,2 catalog_headers.txt > catalog_headers_trimmed.txt
+
+# drop other superfluous characters
+sed 's/>//g' -i catalog_headers_trimmed.txt
+sed 's/pos=//g' -i catalog_headers_trimmed.txt
+sed $'s/:/\t/g' -i catalog_headers_trimmed.txt
+sed $'s/ /\t/g' -i catalog_headers_trimmed.txt
+```
+
+Get lengths of sequences from the non-header fasta lines
+```
+# get lengths of loci
+zcat catalog.fa.gz  | awk '!(NR % 2) {print length($0)}'> catalog_lengths.txt
+```
+
+Get positive or negative strand...
+```
+cut -d: -f 3 catalog_headers.txt | cut -d " " -f 1 > catalog_headers_strand.txt
+```
+
+Combine all of this into one file
+```
+paste catalog_headers_trimmed.txt catalog_lengths.txt catalog_headers_strand.txt > catalog_loci_lookup.txt
+```
+
+Run a quick r-script to convert positive/negative strand start/ends to unidirectional (since we don't need the actual bases/directionality)
+
+```
+R
+library(tidyverse)
+catal = read_delim("./catalog_loci_lookup.txt", col_names=F)
+
+# split catalog into different strand directions
+minus  = catal %>% filter(X5 == "-")
+plus = catal %>% filter(X5 == "+")
+
+# create start and end variables as appropriate
+plus$start = plus$X3
+plus$end = plus$X3 + plus$X4
+minus$start = minus$X3 - minus$X4
+minus$end = minus$X3
+
+# recombine and sort by locus ID
+combined = rbind(plus,minus)
+combined = combined %>% arrange(X1)
+
+write_delim(combined, delim="\t", col_names=F, file = "catalog_strand_lookup.txt")
+```
+
+Finally, generate the depth blacklist!
+
+```
+library(tidyverse)
+
+to_rem = read_delim("../stacks_prelim_test/depth_droplist_nonan.txt")
+catal = read_delim("./catalog_strand_lookup.txt", col_names=F)
+remove_loci= c()
+for(i in 1:length(to_rem$CHROM)){
+   temp = catal %>% filter(X2 == to_rem$CHROM[i]) %>% filter(X6 <= to_rem$POS[i] & X7 >=to_rem$POS[i])
+   remove_loci = c(remove_loci, temp$X1)
+}
+
+# since there will be some double-hits...
+remove_loci = unique(remove_loci)
+
+r_l = data.frame(rl=remove_loci)
+write_delim(r_l, delim="\t", col_names=F, file="depth_blacklist.txt")
+```
+
+You can combine this blacklist with the one generated in the section below on removing sex chromosome linked sites via
+
+```
+cat depth_blacklist.txt blacklist.txt > ../refgenome/overall_blacklist.txt
+```
+
+I've arbitrarily decided to put the blacklist in the refgenome folder.
+
 #### Identifying scaffolds on sex chromosomes
 * This is still a bit experimental. Thanks to Spencer for the original code!
 * This script will align your reference genome against a reference genome of closely-related species that contains sex chromosomes
@@ -776,7 +924,7 @@ Run script
 
 module load stacks
 
-populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --blacklist ./refgenome/blacklist.txt --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
+populations -P ./stacks_both -O ./stacks_prelim_test -r 0.75 -R 0.5 --blacklist ./refgenome/overall_blacklist.txt --min-maf 0.05 -M popmap_w_batches.txt -t 8 --radpainter --vcf --vcf-all --genepop --structure --plink --phylip --treemix
 ```
 
 ```
