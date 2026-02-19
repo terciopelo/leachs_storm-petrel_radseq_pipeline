@@ -750,11 +750,12 @@ dev.off()
 
 Use this histogram to assess your thresholding choices.
 
-Once you're satisfied with your depth thresholds, run the following command to obtain scaffolds with unusually high depth:
+Once you're satisfied with your depth thresholds, run the following command to obtain scaffolds with unusually high or low depth:
 
 ```
 awk '$3 >= 68.3 || $3 < 8' depth_stats.ldepth.mean > depth_droplist.txt
 
+# since the 'all sites' VCF has a lot of NAs, drop these for downstream convenience
 awk '$3 != "-nan"' depth_droplist.txt > depth_droplist_nonan.txt
 ```
 
