@@ -1284,15 +1284,96 @@ Preliminary R plotting code
 library(tidyverse)
 dat = read_delim("Output_Ne_ivory_plink_top200", skip=1)
 
-# plot in units of generation time
-pdf("base_r_gone_testplot_ivgu.pdf")
-plot(Geometric_mean~Generation, data=dat)
+## Version with CIs ##
+## Also, trim to last 200 generations ##
+
+## define a couple helper functions
+
+# get geometric mean
+geometric_mean <- function(data) {
+    geo = (prod(data))^(1/length(data))
+    return(geo)
+}
+
+# get geometric CI: returns upper and lower bounds
+geometric_ci <- function(data) {
+    geo = 2*(sd(log(data))/sqrt(length(data)))
+    gm = log((prod(data))^(1/length(data)))
+    geo = c(exp(gm-geo), exp(gm+geo))
+    return(geo)
+}
+
+# load all iteration files into 1 data frame (iterations (columns) X generation (rows))
+all_iter_files = dir(pattern="TEMPORARY_FILES/outfileLD_TEMP/*_Nebest")
+
+all_iter_df = read_delim(paste0("TEMPORARY_FILES/outfileLD_TEMP/",all_iter_files[1]), col_names=F)
+all_iter_df = all_iter_df[,2]
+
+for (i in 2:40){
+  temp = read_delim(paste0("TEMPORARY_FILES/outfileLD_TEMP/",all_iter_files[i]), col_names=F)
+  all_iter_df = cbind(all_iter_df,temp[,2])
+}
+
+# get arithmetic means, just for interest
+dat$arith_mean = rowSums(all_iter_df)/length(all_iter_df[1,])
+
+# get 2*SE of geometric mean for each generation
+geo_ci_vec_lwr = c()
+geo_ci_vec_upr = c()
+geo_mean_not_rounded = c()
+
+for(j in 1:length(all_iter_df[,1])){
+  geo_ci_vec = geometric_ci(as.numeric(all_iter_df[j,]))
+  geo_ci_vec_lwr = c(geo_ci_vec_lwr, geo_ci_vec[1])
+  geo_ci_vec_upr = c(geo_ci_vec_upr, geo_ci_vec[2])
+  geo_mean_not_rounded = c(geo_mean_not_rounded, geometric_mean(as.numeric(all_iter_df[j,])))
+}
+
+dat$gci_lwr = geo_ci_vec_lwr
+dat$gci_upr = geo_ci_vec_upr
+dat$geo_mean_nr = geo_mean_not_rounded
+
+# set generation time                                                                                         
+gen_time = 7.9                                             
+dat$raw_time = dat$Generation * gen_time
+
+# set max generations to plot (GONE recommends 200)                                                                                          
+max_gens = 200
+                                             
+# plot means and CIs using ggplot2 -- "real time" units
+pdf("ggplot_mean_ci_real_time_ivgu.pdf")                                    
+plot_a = ggplot(dat, aes(x=raw_time, y=geo_mean_nr)) +
+            geom_line(color="blue") +
+            geom_ribbon(aes(ymin=geo_ci_vec_lwr, 
+                            ymax=geo_ci_vec_upr), alpha=0.2) +
+            coord_cartesian(xlim = c(0, 200*gen_time)) + 
+            xlab("Years before present") +
+            ylab("Effective population size")                                 
+print(plot_a)
 dev.off()
 
+# plot means and CIs using ggplot2 -- "generation" units
+pdf("ggplot_mean_ci_generations_ivgu.pdf")                                    
+plot_b = ggplot(dat, aes(x=Generation, y=geo_mean_nr)) +
+            geom_line(color="blue") +
+            geom_ribbon(aes(ymin=geo_ci_vec_lwr, 
+                            ymax=geo_ci_vec_upr), alpha=0.2) +
+            coord_cartesian(xlim = c(0, 200)) +
+            xlab("Generation") +
+            ylab("Effective population size")
+print(plot_b)
+dev.off()                                             
+            
+
+####old version#####
+# plot in units of generation time
+#pdf("base_r_gone_testplot_ivgu.pdf")
+#plot(Geometric_mean~Generation, data=dat)
+#dev.off()
+
 # convert to 'actual' time
-dat$raw_time = dat$Generation * 7.9
-pdf("base_r_gone_testplot_ivgu_time.pdf", width=18, height=8)
-plot(Geometric_mean~raw_time, xlab="Time",  data=dat)
-dev.off()
+#pdf("base_r_gone_testplot_ivgu_time.pdf", width=18, height=8)
+#plot(Geometric_mean~raw_time, xlab="Time",  data=dat)
+#dev.off()
 ```
 
