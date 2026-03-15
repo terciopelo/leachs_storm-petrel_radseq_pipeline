@@ -1304,7 +1304,7 @@ geometric_ci <- function(data) {
 }
 
 # load all iteration files into 1 data frame (iterations (columns) X generation (rows))
-all_iter_files = dir(pattern="TEMPORARY_FILES/outfileLD_TEMP/*_Nebest")
+all_iter_files = dir(path="TEMPORARY_FILES/outfileLD_TEMP/", pattern="*_Nebest")
 
 all_iter_df = read_delim(paste0("TEMPORARY_FILES/outfileLD_TEMP/",all_iter_files[1]), col_names=F)
 all_iter_df = all_iter_df[,2]
