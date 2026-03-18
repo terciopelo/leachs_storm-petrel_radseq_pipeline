@@ -895,7 +895,7 @@ cat *_w_contigs.txt *_z_contigs.txt > all_sex_linked_contigs.txt
 touch blacklist.txt
 for CONTIG in `cat all_sex_linked_contigs.txt`; do
  #change path to catalog file to reflect what you named your gstacks output folder
- zgrep ${CONTIG} ../stacks_original/catalog.fa.gz | cut -f 1 -d " "| sed 's/>//g'  > blacklist.txt
+ zgrep ${CONTIG} ../stacks_original/catalog.fa.gz | cut -f 1 -d " "| sed 's/>//g'  >> blacklist.txt
 done
 sort -o blacklist.txt blacklist.txt
 ```
