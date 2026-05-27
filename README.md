@@ -1049,6 +1049,7 @@ Specifically, add...
 * project_dir: the directory you want created to hold your Stairway analysis files and results
 * mu: mutation rate--can set this to a dfferent species-specific value if known
 * year_per_generation: if you don't know this, can check: https://doi.org/10.1111/cobi.13486
+* nrand: change numbers to reflect your chosen nseq from above--the four numbers should be: (nseq-2)/4, (nseq-2)/2, (nseq-2)*3/4, nseq-2.
 ```
 #example blueprint file
 #input setting
