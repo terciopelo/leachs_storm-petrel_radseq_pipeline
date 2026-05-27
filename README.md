@@ -1061,7 +1061,7 @@ SFS:    9638.215        3929.77 2243.5499999999997      1493.6750000000002      
 #smallest_size_of_SFS_bin_used_for_estimation: 1 # default is 1; to ignore singletons, uncomment this line and change this number to 2
 #largest_size_of_SFS_bin_used_for_estimation: 15 # default is nseq/2 for folded SFS
 pct_training: 0.67 # percentage of sites for training
-nrand: 7        15      22      28 # number of random break points for each try (separated by white space)
+nrand: 56        111      166      222 # number of random break points for each try (separated by white space)
 project_dir: seabird_species # project directory
 stairway_plot_dir: stairway_plot_es # directory to the stairway plot files
 ninput: 200 # number of input files to be created for each estimation
