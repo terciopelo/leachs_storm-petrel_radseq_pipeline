@@ -1196,7 +1196,7 @@ var_i=1
 while read p; do echo ${p},${var_i} >> chrom_200_lookup.txt; var_i=`expr $var_i + 1`; done < new_chrom_list_200.txt
 
 # convert chromosome names to numbers in map file (for GONE formatting)
-while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i "s/$line1/$line2/g" ivory_plink_top200.map; done < chrom_200_lookup.txt
+while read p; do line1=`echo $p | cut -f 1 -d ","`; line2=`echo $p | cut -f 2 -d ","`; sed -i -e "s/$line1\t/$line2\t/g" ivory_plink_top200.map; done < chrom_200_lookup.txt
 ```
 
 Now, create a working directory for your GONE analysis
